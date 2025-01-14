@@ -5,14 +5,22 @@
 
 using namespace std;
 
+struct obj{
+    int m_key;
+    int value;
+
+    obj(int key, int value): m_key(key), value(value){}
+    int key(){ return m_key;}
+};
+
 
 int main(){
 
-    DynamicHash<int> table;
+    DynamicHash<obj> table;
     for (int i = 0; i < 100; i++)
     {
-        int* x = new int(i);
-        table.insert(i, x);
+        obj x(i, i);
+        table.insert(x);
     }
     
 
