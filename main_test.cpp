@@ -2,6 +2,8 @@
 #include "DynamicHash.h"
 #include <string>
 #include <iostream>
+#include "UnionFind.h"
+#include "Rider.h"
 
 using namespace std;
 
@@ -22,7 +24,10 @@ int main(){
         obj x(i, i);
         table.insert(x);
     }
-    
+
+    UnionFind<Rider> uf;
+    auto rider1 = make_shared<Rider>(1, nullptr);
+    uf.makeSet(rider1);
 
     return 1;
 }
