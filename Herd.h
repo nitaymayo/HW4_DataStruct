@@ -8,7 +8,28 @@
 
 
 class Herd {
+private:
+    int id;
+    int record;
 
+
+    public:
+    Herd(int id): Herd(id, 0){};
+    Herd(int id, int record): id(id), record(record) {};
+    ~Herd() = default;
+    int getId() const{
+        return id;
+    };
+    int getRecord() const {
+        return record;
+    };
+    void incrementRecord() {
+        record++;
+    }
+
+    int key() const {
+        return getId();
+    };
 };
 
 
