@@ -14,12 +14,19 @@
 #define PLAINS25WINTER_WET1_H_
 
 #include "wet2util.h"
+#include "UnionFind.h"
+#include "Herd.h"
+#include "DynamicHash.h"
+#include "Rider.h"
 
 class Plains {
 private:
     //
     // Here you may add anything you want
     //
+    UnionFind teams;
+    DynamicHash<Rider> riders;
+    DynamicHash<RevTreeNode<Herd>> herds;
     
 public:
     // <DO-NOT-MODIFY> {
