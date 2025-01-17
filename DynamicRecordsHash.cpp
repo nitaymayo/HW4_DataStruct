@@ -78,7 +78,7 @@ public:
         return temp;
     }
 
-    bool insert(int record, shared_ptr<RevTreeNode<Herd>> obj){            
+     shared_ptr<RecordsNode<RevTreeNode<Herd>>> insert(int record, shared_ptr<RevTreeNode<Herd>> obj){            
         int i = hash(record);
         shared_ptr<RecordsNode<RevTreeNode<Herd>>> node =
              make_shared<RecordsNode<RevTreeNode<Herd>>>(obj);
@@ -89,7 +89,7 @@ public:
         if(amount >= size){
             multiplyHash();
         }
-        return true;
+        return node;
     }
 
     void multiplyHash(){
