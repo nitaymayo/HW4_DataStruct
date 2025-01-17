@@ -6,7 +6,7 @@
 
 Plains::Plains()
 {
-    
+
 }
 
 Plains::~Plains()
@@ -16,21 +16,61 @@ Plains::~Plains()
 
 StatusType Plains::add_team(int teamId)
 {
-    return StatusType::FAILURE;
+  if(teamId <= 0) return StatusType::INVALID_INPUT;
+  if(herds.search(teamId)) return StatusType::FAILURE;
+  try {
+      teams.makeSet(Herd(teamId));
+  } catch(bad_alloc &e) {
+    return StatusType::ALLOCATION_ERROR;
+  }
+  return StatusType::SUCCESS;
 }
 
 StatusType Plains::add_jockey(int jockeyId, int teamId)
 {
-    return StatusType::FAILURE;
+  if(jockeyId <= 0 || teamId <= 0) return StatusType::INVALID_INPUT;
+
+  auto team = herds.search(teamId);
+
+  if(team->getData()->Deleted() || riders.search(jockeyId)) return StatusType::FAILURE;
+  shared_ptr<Rider> rider;
+  try{
+    rider = make_shared<Rider>(jockeyId, team);
+  } catch (bad_alloc &e) {
+    return StatusType::ALLOCATION_ERROR;
+  }
+
+  if (!riders.insert(rider)) throw std::logic_error("riders.insert() failed");
+
+  return StatusType::SUCCESS;
 }
 
 StatusType Plains::update_match(int victoriousJockeyId, int losingJockeyId)
 {
-    return StatusType::FAILURE;
+  if (losingJockeyId <= 0 || victoriousJockeyId <= 0
+      || losingJockeyId == victoriousJockeyId) return StatusType::INVALID_INPUT;
+
+    auto winRider = riders.search(victoriousJockeyId),
+        loseRider = riders.search(losingJockeyId);
+    if (!winRider || !loseRider) return StatusType::FAILURE;
+
+  int winHerdId = winRider->HerdID(),
+      loseHerdId = loseRider->HerdID();
+
+  auto winningTeam = teams.Find(Herd(winHerdId)),
+       loseTeam = teams.Find(Herd(loseHerdId));
+
+  if (winningTeam->getID() == loseTeam->getID()) return StatusType::FAILURE;
+
+  winningTeam->increaseRecord(1);
+  loseTeam->increaseRecord(-1);
+
+  return StatusType::SUCCESS;
 }
 
 StatusType Plains::merge_teams(int teamId1, int teamId2)
 {
+
     return StatusType::FAILURE;
 }
 
