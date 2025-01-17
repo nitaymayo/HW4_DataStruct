@@ -5,6 +5,7 @@
 #ifndef DYNAMICARRAY_H
 #define DYNAMICARRAY_H
 #include <memory>
+#include <stdexcept>
 
 #define DEFAULT_CAPACITY 16
 

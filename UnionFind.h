@@ -46,13 +46,13 @@ struct RevTreeNode{
        	return (m_set != nullptr);
       }
       void clearSet(){
-        m_set = nullptr;
+        m_set.reset();
       }
       shared_ptr<Set<T>> getSet(){
         return m_set;
       }
       void setSet(shared_ptr<Set<T>> set){
-      this->m_set = std::move(set);
+      this->m_set = set;
       }
 };
 
@@ -82,7 +82,12 @@ struct Set{
     int getRecord() const {
     return m_record;
     }
+    void increaseRecord(int record){
+      this->m_record += record;
+    }
+
     int key() const {return getID();};
+
     int getID() const {
       return m_ID;
     }
@@ -93,11 +98,13 @@ struct Set{
       return head;
     }
     void setHead(shared_ptr<RevTreeNode<T>> member){
-      head = std::move(member);
+      head = member;
     }
     void deleteSet(){
     deleted = true;
-    head = nullptr;
+      head.reset();
+      m_record = -1;
+      m_size = -1;
     }
 
 };
@@ -117,7 +124,7 @@ class UnionFind {
       auto newHerd = make_shared<Herd>(data);
       auto root = make_shared<RevTreeNode<Herd>>(newHerd, nullptr, nullptr);
       shared_ptr<Set<Herd>> set = make_shared<Set<Herd>>(m_size++, root);
-      auto node = make_shared<RevTreeNode<Herd>>(newHerd, nullptr, set);
+      root->setSet(set);
   	  sets.insert(set);
   	  nodes.insert(root);
       return set;
@@ -128,36 +135,35 @@ class UnionFind {
       if (!leftSet || !rightSet) {
         throw std::invalid_argument("No such element");
       }
-
-      shared_ptr<RevTreeNode<Herd>> smallerRep;
-      shared_ptr<RevTreeNode<Herd>> largerRep;
-
       //unite into larger set
       if (leftSet->getSize() > rightSet->getSize()){
-        smallerRep = rightSet->getHead();
-        largerRep = leftSet->getHead();
+        rightSet->getHead()->setParent(leftSet->getHead());
+        if (leftSet->getRecord() < rightSet->getRecord()){
+            setLeadingSet(rightSet, leftSet);
+        } else {
+            leftSet->increaseRecord(rightSet->getRecord());
+            leftSet->increaseSize(rightSet->getSize());
+            rightSet->deleteSet();
+        }
       } else {
-        smallerRep = leftSet->getHead();
-        largerRep = rightSet->getHead();
+        leftSet->getHead()->setParent(rightSet->getHead());
+        if (leftSet->getRecord() >= rightSet->getRecord()){
+            setLeadingSet(leftSet, rightSet);
+        } else {
+            rightSet->increaseRecord(leftSet->getRecord());
+            rightSet->increaseSize(leftSet->getSize());
+            leftSet->deleteSet();
+        }
     	}
-
-       smallerRep->setParent(largerRep);
-       smallerRep->clearSet();
-       largerRep->getSet()->increaseSize(smallerRep->getSet()->getSize());
-      // check who has better score
-      if (largerRep->getSet()->getRecord() < smallerRep->getSet()->getRecord()) {
-        largerRep->clearSet();
-        smallerRep->getSet()->setHead(largerRep);
-        largerRep->setSet(smallerRep->getSet());
-        smallerRep->clearSet();
-      } else if (largerRep->getSet()->getRecord() == smallerRep->getSet()->getRecord()) {
-        // clear right set and make the final ID be of the left set
-        leftSet->getHead()->clearSet();
-        leftSet->setHead(rightSet->getHead());
-        rightSet->getHead()->setSet(leftSet);
-        rightSet->deleteSet();
-      }
-
+    }
+    void setLeadingSet(const shared_ptr<Set<Herd>>& lead, const shared_ptr<Set<Herd>>& follow){
+    auto initalLeadHead = lead->getHead();
+       lead->setHead(follow->getHead());
+        lead->getHead()->setSet(lead);
+        lead->increaseSize(follow->getSize());
+        lead->increaseRecord(follow->getRecord());
+        initalLeadHead->clearSet();
+        follow->deleteSet();
     }
 
     shared_ptr<Set<Herd>> Find(const Herd& data){
@@ -178,7 +184,7 @@ class UnionFind {
            temp->setParent(nodePtr);
          }
 
-         return sets.search(nodePtr->key());
+         return sets.search(nodePtr->getSet()->key());
     }
 
 };
