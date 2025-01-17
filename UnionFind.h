@@ -7,13 +7,14 @@
 #include "DynamicArray.h"
 #include "DynamicHash.h"
 #include <memory>
+#include "Herd.h"
 using namespace std;
 
 template <typename T>
-class Set;
+struct Set;
 
 template<class T>
-class RevTreeNode{
+struct RevTreeNode{
   private:
     shared_ptr<T> m_data;
     shared_ptr<RevTreeNode<T>> m_parent;
@@ -33,6 +34,7 @@ class RevTreeNode{
       shared_ptr<T> getData(){
         return m_data;
       }
+      int key(){return m_data->key();}
       void setParent(shared_ptr<RevTreeNode<T>> parent){
         this->m_parent = parent;
       }
@@ -49,14 +51,14 @@ class RevTreeNode{
 
 
 template<class T>
-class Set{
+struct Set{
   private:
     int m_size;
     int m_ID;
     shared_ptr<RevTreeNode<T>> head;
-
+    bool deleted;
   public:
-    Set<T>(int ID, shared_ptr<RevTreeNode<T>> root): m_size(1), m_ID(ID), head(root){};
+    Set(int ID, shared_ptr<RevTreeNode<T>> root): m_size(1), m_ID(ID), head(root), deleted(false){};
 
     ~Set() = default;
 
@@ -66,6 +68,7 @@ class Set{
     void increaseSize(int size){
       this->m_size += size;
     }
+    int key() const {return getID();};
     int getID(){
       return m_ID;
     }
