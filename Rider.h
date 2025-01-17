@@ -31,6 +31,12 @@ public:
     int key() const {
         return m_id;
     }
+    void won() {
+        record++;
+    }
+    void lost() {
+        record--;
+    }
 };
 
 

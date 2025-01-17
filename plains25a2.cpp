@@ -62,6 +62,8 @@ StatusType Plains::update_match(int victoriousJockeyId, int losingJockeyId)
 
   if (winningTeam->getID() == loseTeam->getID()) return StatusType::FAILURE;
 
+  winRider->won();
+  loseRider->lost();
   winningTeam->increaseRecord(1);
   loseTeam->increaseRecord(-1);
 
