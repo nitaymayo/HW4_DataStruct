@@ -31,12 +31,12 @@ public:
         size = DEFAULT_CAPACITY;
         amount = 0;
     }
-    shared_ptr<Node<T>> search(int key){
+    shared_ptr<T> search(int key){
         int i = hash(key);
         shared_ptr<Node<T>> current = arr[i];
         while (current != nullptr){
             if (current->data->key() == key){
-                return current;
+                return current->data;
             }
             current = current->next;
         }
