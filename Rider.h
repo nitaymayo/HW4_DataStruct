@@ -7,21 +7,29 @@
 #include "Herd.h"
 #include <memory>
 
+#include "UnionFind.h"
+
 
 class Rider {
 private:
     int m_id;
     int record;
-    std::shared_ptr<Herd> m_herd;
+    std::shared_ptr<RevTreeNode<Herd>> m_herd;
 
 public:
-    Rider(int id, std::shared_ptr<Herd> herd): m_id(id), record(0), m_herd(nullptr) {};
+    Rider(int id, std::shared_ptr<RevTreeNode<Herd>> herd): m_id(id), record(0), m_herd(herd) {};
 
     int getID() const {
         return m_id;
     }
-    int getRecord() const {
-        return record;
+    int HerdID() const {
+        return m_herd->key();
+    }
+    std::shared_ptr<RevTreeNode<Herd>> getHerd() const {
+        return m_herd;
+    }
+    int key() const {
+        return m_id;
     }
 };
 

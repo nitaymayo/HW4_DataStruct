@@ -67,7 +67,6 @@ struct Set{
     int m_record;
   public:
     Set(const int ID, shared_ptr<RevTreeNode<T>> root): m_size(1), m_ID(ID), deleted(false){
-    m_record = root->getData()->getRecord();
       head = std::move(root);
     };
 
@@ -102,6 +101,7 @@ struct Set{
     }
     void deleteSet(){
     deleted = true;
+      head->getData()->markDelete();
       head.reset();
       m_record = -1;
       m_size = -1;
