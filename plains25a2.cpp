@@ -78,6 +78,11 @@ StatusType Plains::merge_teams(int teamId1, int teamId2)
 
 StatusType Plains::unite_by_record(int record)
 {
+  if(record <= 0){
+    return StatusType::INVALID_INPUT;
+  }
+  Pairs groups = records.Amount(record);
+  if(groups.first == nullptr || groups.second == nullptr){
     return StatusType::FAILURE;
 }
 

@@ -10,7 +10,7 @@ using namespace std;
 
 template <class T>
 struct RecordsNode{
-    shared_ptr<RevTreeNode<Herd>> data;
+    shared_ptr<T> data;
     shared_ptr<RecordsNode<T>> next;
     shared_ptr<RecordsNode<T>> previous;
     int m_record = 0;
@@ -53,7 +53,6 @@ public:
     // returns the herd with the positive record, if the amount of groups
     //  is not precisly one negative and one positive returns nullptr
     Pairs Amount(int record){
-        record = abs(record);
         int i = hash(record);
         Pairs temp;
         shared_ptr<RecordsNode<RevTreeNode<Herd>>> current = arr[i];
