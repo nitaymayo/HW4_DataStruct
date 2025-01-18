@@ -72,8 +72,25 @@ StatusType Plains::update_match(int victoriousJockeyId, int losingJockeyId)
 
 StatusType Plains::merge_teams(int teamId1, int teamId2)
 {
+  // input check
 
+  if (teamId1 <= 0 || teamId2 <= 0 ||
+        teamId1 == teamId2) return StatusType::INVALID_INPUT;
+  auto team1 = herds.search(teamId1), team2 = herds.search(teamId2);
+  // check if teams still alive
+  if (!team1 || !team2 ||
+      team1->getData()->Deleted() ||
+      team2->getData()->Deleted())
     return StatusType::FAILURE;
+
+  // make union
+  try {
+     teams.Union(Herd(teamId1),Herd(teamId2));
+  } catch (std::invalid_argument &e) {
+   return StatusType::FAILURE;
+  }
+
+  return StatusType::SUCCESS;
 }
 
 StatusType Plains::unite_by_record(int record)
