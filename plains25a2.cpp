@@ -84,6 +84,13 @@ StatusType Plains::unite_by_record(int record)
   Pairs groups = records.Amount(record);
   if(groups.first == nullptr || groups.second == nullptr){
     return StatusType::FAILURE;
+  }
+  try{
+    merge_teams(groups.first->key(), groups.second->key());
+  }catch(...){
+    return StatusType::ALLOCATION_ERROR;
+  }
+  return StatusType::SUCCESS;
 }
 
 output_t<int> Plains::get_jockey_record(int jockeyId)
