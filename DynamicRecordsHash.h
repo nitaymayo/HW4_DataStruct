@@ -30,12 +30,12 @@ struct Pairs //for returning to values in amount function
 
 class DynamicRecordsHash{
 private:
-    unique_ptr<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]> arr;
+    shared_ptr<RecordsNode<RevTreeNode<Herd>>>* arr;
     int size;
     int amount;
 public:
     DynamicRecordsHash(){
-        arr = make_unique<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]>(DEFAULT_CAPACITY);
+        arr = shared_ptr<RecordsNode<RevTreeNode<Herd>>>[](DEFAULT_CAPACITY);
         size = DEFAULT_CAPACITY;
         amount = 0;
     }
