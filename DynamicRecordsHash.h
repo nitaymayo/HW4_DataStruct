@@ -10,7 +10,7 @@ using namespace std;
 
 template <class T>
 struct RecordsNode{
-    shared_ptr<T> data;
+    shared_ptr<RevTreeNode<Herd>> data;
     shared_ptr<RecordsNode<T>> next;
     shared_ptr<RecordsNode<T>> previous;
     int m_record = 0;
