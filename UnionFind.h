@@ -121,12 +121,14 @@ class UnionFind {
     ~UnionFind() = default;
 
     shared_ptr<Set<Herd>> makeSet(const Herd& data){
+
       auto newHerd = make_shared<Herd>(data);
       auto root = make_shared<RevTreeNode<Herd>>(newHerd, nullptr, nullptr);
-      shared_ptr<Set<Herd>> set = make_shared<Set<Herd>>(m_size++, root);
+      shared_ptr<Set<Herd>> set = make_shared<Set<Herd>>(data.getId(), root);
       root->setSet(set);
   	  sets.insert(set);
   	  nodes.insert(root);
+      m_size++;
       return set;
     }
 

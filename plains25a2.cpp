@@ -83,10 +83,18 @@ StatusType Plains::unite_by_record(int record)
 
 output_t<int> Plains::get_jockey_record(int jockeyId)
 {
-    return 0;
+  if (jockeyId <= 0) return StatusType::INVALID_INPUT;
+  auto jockey = riders.search(jockeyId);
+  if (!jockey) return StatusType::FAILURE;
+
+  return jockey->getRecord();
 }
 
 output_t<int> Plains::get_team_record(int teamId)
 {
-    return 0;
+    if (teamId <= 0) return StatusType::INVALID_INPUT;
+    auto team = herds.search(teamId);
+    if (!team) return StatusType::FAILURE;
+    if (!team->getSet()) throw logic_error("team->getSet() is null");
+    return team->getSet()->getRecord();
 }

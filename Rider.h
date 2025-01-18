@@ -37,6 +37,9 @@ public:
     void lost() {
         record--;
     }
+    int getRecord() const {
+        return record;
+    }
 };
 
 
