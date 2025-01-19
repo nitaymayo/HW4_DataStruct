@@ -35,10 +35,14 @@ private:
     int amount;
 public:
     DynamicRecordsHash(){
-        arr = shared_ptr<RecordsNode<RevTreeNode<Herd>>>[](DEFAULT_CAPACITY);
+        arr = new shared_ptr<RecordsNode<RevTreeNode<Herd>>>[DEFAULT_CAPACITY];
+        // for (int i = 0; i < DEFAULT_CAPACITY; ++i){
+        //     arr[i] = make_shared<Node<RecordsNode<RevTreeNode<Herd>>>>();
+        // }
         size = DEFAULT_CAPACITY;
         amount = 0;
     }
+
     shared_ptr<RevTreeNode<Herd>> search(int record){
         int i = hash(abs(record));
         shared_ptr<RecordsNode<RevTreeNode<Herd>>> current = arr[i];
@@ -92,9 +96,10 @@ public:
     }
 
     void multiplyHash(){
-        unique_ptr<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]> temp_arr = move(this->arr);
+        auto temp_arr = this->arr;
         this->size = this->size*2;
-        arr = make_unique<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]>(this->size);
+        arr = new shared_ptr<RecordsNode<RevTreeNode<Herd>>>[this->size];
+
         for (int i = 0; i < size/2; i++){
             shared_ptr<RecordsNode<RevTreeNode<Herd>>> current = temp_arr[i];
             while (current != nullptr && current->data != nullptr)
@@ -105,8 +110,9 @@ public:
                 arr[i] = current;
                 current = next;
             }
+            temp_arr[i].reset();
         }
-        return;
+        delete[] temp_arr;
     }
 
     // for deleting herds from records in O(1)

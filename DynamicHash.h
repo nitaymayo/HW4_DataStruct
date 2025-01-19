@@ -43,7 +43,8 @@ public:
     shared_ptr<T> search(int key){
         int i = hash(key);
         shared_ptr<Node<T>> current = arr[i];
-        while (current != nullptr){
+
+        while (current && current->data){
             if (current->data->key() == key){
                 return current->data;
             }
@@ -83,7 +84,7 @@ public:
                 arr[i] = current;
                 current = next;
             }
-            temp_arr[i].reset()
+            temp_arr[i].reset();
         }
         delete[] temp_arr;
     }
