@@ -18,6 +18,7 @@
 #include "Herd.h"
 #include "DynamicHash.h"
 #include "Rider.h"
+#include "DynamicRecordsHash.h"
 
 class Plains {
 private:
@@ -27,6 +28,7 @@ private:
     UnionFind teams;
     DynamicHash<Rider> riders;
     DynamicHash<RevTreeNode<Herd>> herds;
+    DynamicRecordsHash records;
     
 public:
     // <DO-NOT-MODIFY> {

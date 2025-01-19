@@ -6,6 +6,7 @@
 #define UNIONFIND_H
 #include "DynamicArray.h"
 #include "DynamicHash.h"
+#include "DynamicRecordsHash.h"
 #include <memory>
 #include <utility>
 #include "Herd.h"
@@ -64,9 +65,10 @@ struct Set{
     int m_ID;
     shared_ptr<RevTreeNode<T>> head;
     bool deleted;
-    int m_record;
+    shared_ptr<RecordsNode<Set<T>>> m_record;
   public:
-    Set(const int ID, shared_ptr<RevTreeNode<T>> root): m_size(1), m_ID(ID), deleted(false){
+    Set(const int ID, shared_ptr<RevTreeNode<T>> root): m_size(1), m_ID(ID),
+     deleted(false), m_record(nullptr){
       head = std::move(root);
     };
 
@@ -79,10 +81,16 @@ struct Set{
       this->m_size += size;
     }
     int getRecord() const {
-    return m_record;
+    return m_record->getRecord();
     }
-    void increaseRecord(int record){
-      this->m_record += record;
+    shared_ptr<RecordsNode<Set<Herd>>> getNodeRecord(){
+      return m_record;;
+    }
+    void setRecord(shared_ptr<RecordsNode<Set<Herd>>> record){
+      m_record = record;
+    }
+    void increaseRecord(int num){
+      m_record->m_record += num;
     }
 
     int key() const {return getID();};
@@ -103,7 +111,7 @@ struct Set{
     deleted = true;
       head->getData()->markDelete();
       head.reset();
-      m_record = -1;
+      m_record.reset();
       m_size = -1;
     }
 
@@ -132,7 +140,7 @@ class UnionFind {
       return set;
     }
 
-    void Union(const Herd& left, const Herd& right){
+    void Union(const Herd& left, const Herd& right, DynamicRecordsHash& records){
       shared_ptr<Set<Herd>> leftSet = Find(left), rightSet = Find(right);
       if (!leftSet || !rightSet) {
         throw std::invalid_argument("No such element");
@@ -141,7 +149,7 @@ class UnionFind {
       if (leftSet->getSize() > rightSet->getSize()){
         rightSet->getHead()->setParent(leftSet->getHead());
         if (leftSet->getRecord() < rightSet->getRecord()){
-            setLeadingSet(rightSet, leftSet);
+            setLeadingSet(rightSet, leftSet, records);
         } else {
             leftSet->increaseRecord(rightSet->getRecord());
             leftSet->increaseSize(rightSet->getSize());
@@ -150,7 +158,7 @@ class UnionFind {
       } else {
         leftSet->getHead()->setParent(rightSet->getHead());
         if (leftSet->getRecord() >= rightSet->getRecord()){
-            setLeadingSet(leftSet, rightSet);
+            setLeadingSet(leftSet, rightSet, records);
         } else {
             rightSet->increaseRecord(leftSet->getRecord());
             rightSet->increaseSize(leftSet->getSize());
@@ -158,12 +166,21 @@ class UnionFind {
         }
     	}
     }
-    void setLeadingSet(const shared_ptr<Set<Herd>>& lead, const shared_ptr<Set<Herd>>& follow){
-    auto initalLeadHead = lead->getHead();
-       lead->setHead(follow->getHead());
+    void setLeadingSet(const shared_ptr<Set<Herd>>& lead,
+       const shared_ptr<Set<Herd>>& follow, DynamicRecordsHash& records){
+        auto initalLeadHead = lead->getHead();
+        lead->setHead(follow->getHead());
         lead->getHead()->setSet(lead);
         lead->increaseSize(follow->getSize());
-        lead->increaseRecord(follow->getRecord());
+        // lead->increaseRecord(follow->getRecord());
+        shared_ptr<RecordsNode<Set<Herd>>> loseRecord = follow->getNodeRecord();
+        shared_ptr<RecordsNode<Set<Herd>>> winRecord = lead->getNodeRecord();
+        records.deleteNode(loseRecord);
+        records.deleteNode(winRecord);
+        shared_ptr<RecordsNode<Set<Herd>>> record = 
+        records.insert(loseRecord->m_record + winRecord->m_record , lead);
+        lead->setRecord(record);
+
         initalLeadHead->clearSet();
         follow->deleteSet();
     }

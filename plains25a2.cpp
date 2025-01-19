@@ -19,7 +19,9 @@ StatusType Plains::add_team(int teamId)
   if(teamId <= 0) return StatusType::INVALID_INPUT;
   if(herds.search(teamId)) return StatusType::FAILURE;
   try {
-      teams.makeSet(Herd(teamId));
+      shared_ptr<Set<Herd>> temp = teams.makeSet(Herd(teamId));
+      shared_ptr<RecordsNode<Set<Herd>>> record = records.insert(0, temp);
+      temp->setRecord(record);
   } catch(bad_alloc &e) {
     return StatusType::ALLOCATION_ERROR;
   }
@@ -64,8 +66,16 @@ StatusType Plains::update_match(int victoriousJockeyId, int losingJockeyId)
 
   winRider->won();
   loseRider->lost();
-  winningTeam->increaseRecord(1);
-  loseTeam->increaseRecord(-1);
+  shared_ptr<RecordsNode<Set<Herd>>> loseRecord = loseTeam->getNodeRecord();
+  shared_ptr<RecordsNode<Set<Herd>>> record = 
+    records.insert(loseRecord->m_record - 1, loseTeam);
+  loseTeam->setRecord(record);
+  records.deleteNode(loseRecord);
+  shared_ptr<RecordsNode<Set<Herd>>> winRecord = winningTeam->getNodeRecord();
+  shared_ptr<RecordsNode<Set<Herd>>> record = 
+    records.insert(loseRecord->m_record + 1, winningTeam);
+  winningTeam->setRecord(record);
+  records.deleteNode(winRecord);
 
   return StatusType::SUCCESS;
 }
@@ -85,7 +95,7 @@ StatusType Plains::merge_teams(int teamId1, int teamId2)
 
   // make union
   try {
-     teams.Union(Herd(teamId1),Herd(teamId2));
+     teams.Union(Herd(teamId1),Herd(teamId2), this->records);
   } catch (std::invalid_argument &e) {
    return StatusType::FAILURE;
   }

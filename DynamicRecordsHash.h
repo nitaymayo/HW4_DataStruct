@@ -18,30 +18,32 @@ struct RecordsNode{
     RecordsNode(): data(nullptr), next(nullptr){}
     RecordsNode(shared_ptr<T> data):
          data(data), next(nullptr), previous(nullptr){}
+
+    int getRecord(){return m_record;}
 };
 
 struct Pairs //for returning to values in amount function
 {
-    shared_ptr<RevTreeNode<Herd>> first;
-    shared_ptr<RevTreeNode<Herd>> second;
+    shared_ptr<Set<Herd>> first;
+    shared_ptr<Set<Herd>> second;
 
 };
 
 
 class DynamicRecordsHash{
 private:
-    unique_ptr<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]> arr;
+    unique_ptr<shared_ptr<RecordsNode<Set<Herd>>>[]> arr;
     int size;
     int amount;
 public:
     DynamicRecordsHash(){
-        arr = make_unique<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]>(DEFAULT_CAPACITY);
+        arr = make_unique<shared_ptr<RecordsNode<Set<Herd>>>[]>(DEFAULT_CAPACITY);       
         size = DEFAULT_CAPACITY;
         amount = 0;
     }
-    shared_ptr<RevTreeNode<Herd>> search(int record){
+    shared_ptr<Set<Herd>> search(int record){
         int i = hash(abs(record));
-        shared_ptr<RecordsNode<RevTreeNode<Herd>>> current = arr[i];
+        shared_ptr<RecordsNode<Set<Herd>>> current = arr[i];
         while (current != nullptr){
             if (current->m_record == record){
                 return current->data;
@@ -55,7 +57,7 @@ public:
     Pairs Amount(int record){
         int i = hash(record);
         Pairs temp;
-        shared_ptr<RecordsNode<RevTreeNode<Herd>>> current = arr[i];
+        shared_ptr<RecordsNode<Set<Herd>>> current = arr[i]->next;
         int positive_counter = 0;
         int negative_counter = 0;
         while (current != nullptr && positive_counter < 2 && negative_counter < 2 ){
@@ -77,10 +79,10 @@ public:
         return temp;
     }
 
-     shared_ptr<RecordsNode<RevTreeNode<Herd>>> insert(int record, shared_ptr<RevTreeNode<Herd>> obj){            
+     shared_ptr<RecordsNode<Set<Herd>>> insert(int record, shared_ptr<Set<Herd>> obj){            
         int i = hash(record);
-        shared_ptr<RecordsNode<RevTreeNode<Herd>>> node =
-             make_shared<RecordsNode<RevTreeNode<Herd>>>(obj);
+        shared_ptr<RecordsNode<Set<Herd>>> node =
+             make_shared<RecordsNode<Set<Herd>>>(obj);
         node->m_record = record;
         node->next = arr[i];  
         arr[i] = node;
@@ -92,14 +94,14 @@ public:
     }
 
     void multiplyHash(){
-        unique_ptr<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]> temp_arr = move(this->arr);
+        unique_ptr<shared_ptr<RecordsNode<Set<Herd>>>[]> temp_arr = move(this->arr);
         this->size = this->size*2;
-        arr = make_unique<shared_ptr<RecordsNode<RevTreeNode<Herd>>>[]>(this->size);
+        arr = make_unique<shared_ptr<RecordsNode<Set<Herd>>>[]>(this->size);
         for (int i = 0; i < size/2; i++){
-            shared_ptr<RecordsNode<RevTreeNode<Herd>>> current = temp_arr[i];
+            shared_ptr<RecordsNode<Set<Herd>>> current = temp_arr[i];
             while (current != nullptr && current->data != nullptr)
             {
-                shared_ptr<RecordsNode<RevTreeNode<Herd>>> next = current->next;
+                shared_ptr<RecordsNode<Set<Herd>>> next = current->next;
                 int i = hash(current->m_record);
                 current->next = arr[i];
                 arr[i] = current;
@@ -110,12 +112,8 @@ public:
     }
 
     // for deleting herds from records in O(1)
-    void deleteNode(shared_ptr<RecordsNode<RevTreeNode<Herd>>> node){
+    void deleteNode(shared_ptr<RecordsNode<Set<Herd>>> node){
         int i = hash(node->m_record);
-        if (arr[i] == node)
-        {
-            arr[i] = node->next;
-        }
         if (node->previous != nullptr)
         {
             node->previous->next = node->next;
