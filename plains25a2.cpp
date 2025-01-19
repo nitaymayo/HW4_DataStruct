@@ -21,7 +21,7 @@ StatusType Plains::add_team(int teamId)
   try {
       auto team = teams.makeSet(Herd(teamId));
       herds.insert(team->getHead());
-      records.insert(0, team->getHead());
+      records.insert(0, team);
       shared_ptr<Set<Herd>> temp = teams.makeSet(Herd(teamId));
       shared_ptr<RecordsNode<Set<Herd>>> record = records.insert(0, temp);
       temp->setRecord(record);

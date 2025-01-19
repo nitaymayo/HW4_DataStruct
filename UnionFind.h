@@ -175,10 +175,10 @@ class UnionFind {
         // lead->increaseRecord(follow->getRecord());
         shared_ptr<RecordsNode<Set<Herd>>> loseRecord = follow->getNodeRecord();
         shared_ptr<RecordsNode<Set<Herd>>> winRecord = lead->getNodeRecord();
-        records.deleteNode(loseRecord);
-        records.deleteNode(winRecord);
         shared_ptr<RecordsNode<Set<Herd>>> record = 
         records.insert(loseRecord->m_record + winRecord->m_record , lead);
+        records.deleteNode(winRecord);
+        records.deleteNode(loseRecord);
         lead->setRecord(record);
 
         initalLeadHead->clearSet();

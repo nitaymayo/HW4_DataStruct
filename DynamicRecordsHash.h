@@ -123,6 +123,7 @@ public:
             node->next->previous = node->previous;
         }
         this->amount--;
+        node.reset();
     }
 
     int hash(int record) const{
