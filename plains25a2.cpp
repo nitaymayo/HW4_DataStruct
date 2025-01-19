@@ -21,10 +21,8 @@ StatusType Plains::add_team(int teamId)
   try {
       auto team = teams.makeSet(Herd(teamId));
       herds.insert(team->getHead());
-      records.insert(0, team);
-      shared_ptr<Set<Herd>> temp = teams.makeSet(Herd(teamId));
-      shared_ptr<RecordsNode<Set<Herd>>> record = records.insert(0, temp);
-      temp->setRecord(record);
+      shared_ptr<RecordsNode<Set<Herd>>> record = records.insert(0, team);
+      team->setRecord(record);
   } catch(bad_alloc &e) {
     return StatusType::ALLOCATION_ERROR;
   }
@@ -71,11 +69,11 @@ StatusType Plains::update_match(int victoriousJockeyId, int losingJockeyId)
   loseRider->lost();
   shared_ptr<RecordsNode<Set<Herd>>> loseRecord = loseTeam->getNodeRecord();
   shared_ptr<RecordsNode<Set<Herd>>> record = 
-    records.insert(loseRecord->m_record - 1, loseTeam);
+    records.insert(loseRecord->getRecord() - 1, loseTeam);
   loseTeam->setRecord(record);
   records.deleteNode(loseRecord);
   shared_ptr<RecordsNode<Set<Herd>>> winRecord = winningTeam->getNodeRecord();
-  record = records.insert(loseRecord->m_record + 1, winningTeam);
+  record = records.insert(winRecord->getRecord() + 1, winningTeam);
   winningTeam->setRecord(record);
   records.deleteNode(winRecord);
 
@@ -97,7 +95,20 @@ StatusType Plains::merge_teams(int teamId1, int teamId2)
 
   // make union
   try {
-     teams.Union(Herd(teamId1),Herd(teamId2), this->records);
+    teams.Union(Herd(teamId1),Herd(teamId2), this->records);
+    // shared_ptr<Set<Herd>> find1 = teams.Find(Herd(teamId1));
+    // shared_ptr<Set<Herd>> find2 = teams.Find(Herd(teamId2));
+    // shared_ptr<RecordsNode<Set<Herd>>> firstRecord = find1->getNodeRecord();
+    // shared_ptr<RecordsNode<Set<Herd>>> secondRecord = find2->getNodeRecord();
+    // shared_ptr<Set<Herd>> lead ;
+    // if (firstRecord->getRecord() > secondRecord->getRecord())
+    // { lead = find1; }else{ lead = find2;}
+    // shared_ptr<RecordsNode<Set<Herd>>> record = 
+    // records.insert(firstRecord->getRecord() + secondRecord->getRecord() , lead);
+    // records.deleteNode(firstRecord);
+    // records.deleteNode(secondRecord);
+    // lead->setRecord(record);
+
   } catch (std::invalid_argument &e) {
    return StatusType::FAILURE;
   }

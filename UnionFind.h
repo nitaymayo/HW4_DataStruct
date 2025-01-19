@@ -89,8 +89,11 @@ struct Set{
     void setRecord(shared_ptr<RecordsNode<Set<Herd>>> record){
       m_record = record;
     }
-    void increaseRecord(int num){
-      m_record->m_record += num;
+    void increaseRecord(int num, DynamicRecordsHash& records){
+      shared_ptr<RecordsNode<Set<Herd>>> record = 
+      records.increaseRecord(num, m_record);
+      records.deleteNode(m_record);
+      this->setRecord(record);
     }
 
     int key() const {return getID();};
@@ -107,10 +110,11 @@ struct Set{
     void setHead(shared_ptr<RevTreeNode<T>> member){
       head = member;
     }
-    void deleteSet(){
+    void deleteSet(DynamicRecordsHash& records){
     deleted = true;
       head->getData()->markDelete();
       head.reset();
+      records.deleteNode(m_record);
       m_record.reset();
       m_size = -1;
     }
@@ -151,18 +155,18 @@ class UnionFind {
         if (leftSet->getRecord() < rightSet->getRecord()){
             setLeadingSet(rightSet, leftSet, records);
         } else {
-            leftSet->increaseRecord(rightSet->getRecord());
+            leftSet->increaseRecord(rightSet->getRecord(), records);
             leftSet->increaseSize(rightSet->getSize());
-            rightSet->deleteSet();
+            rightSet->deleteSet(records);
         }
       } else {
         leftSet->getHead()->setParent(rightSet->getHead());
         if (leftSet->getRecord() >= rightSet->getRecord()){
             setLeadingSet(leftSet, rightSet, records);
         } else {
-            rightSet->increaseRecord(leftSet->getRecord());
+            rightSet->increaseRecord(leftSet->getRecord(), records);
             rightSet->increaseSize(leftSet->getSize());
-            leftSet->deleteSet();
+            leftSet->deleteSet(records);
         }
     	}
     }
@@ -172,17 +176,17 @@ class UnionFind {
         lead->setHead(follow->getHead());
         lead->getHead()->setSet(lead);
         lead->increaseSize(follow->getSize());
-        // lead->increaseRecord(follow->getRecord());
-        shared_ptr<RecordsNode<Set<Herd>>> loseRecord = follow->getNodeRecord();
-        shared_ptr<RecordsNode<Set<Herd>>> winRecord = lead->getNodeRecord();
-        shared_ptr<RecordsNode<Set<Herd>>> record = 
-        records.insert(loseRecord->m_record + winRecord->m_record , lead);
-        records.deleteNode(winRecord);
-        records.deleteNode(loseRecord);
-        lead->setRecord(record);
+        lead->increaseRecord(follow->getRecord(), records);
+        // shared_ptr<RecordsNode<Set<Herd>>> loseRecord = follow->getNodeRecord();
+        // shared_ptr<RecordsNode<Set<Herd>>> winRecord = lead->getNodeRecord();
+        // shared_ptr<RecordsNode<Set<Herd>>> record = 
+        // records.insert(loseRecord->m_record + winRecord->m_record , lead);
+        // records.deleteNode(winRecord);
+        // records.deleteNode(loseRecord);
+        // lead->setRecord(record);
 
         initalLeadHead->clearSet();
-        follow->deleteSet();
+        follow->deleteSet(records);
     }
 
     shared_ptr<Set<Herd>> Find(const Herd& data){

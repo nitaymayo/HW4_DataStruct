@@ -58,7 +58,7 @@ public:
     Pairs Amount(int record){
         int i = hash(record);
         Pairs temp;
-        shared_ptr<RecordsNode<Set<Herd>>> current = arr[i]->next;
+        shared_ptr<RecordsNode<Set<Herd>>> current = arr[i];
         int positive_counter = 0;
         int negative_counter = 0;
         while (current != nullptr && positive_counter < 2 && negative_counter < 2 ){
@@ -80,12 +80,16 @@ public:
         return temp;
     }
 
-     shared_ptr<RecordsNode<Set<Herd>>> insert(int record, shared_ptr<Set<Herd>> obj){            
-        int i = hash(record);
+    shared_ptr<RecordsNode<Set<Herd>>> insert(int record, shared_ptr<Set<Herd>> obj){            
+        int i = hash(abs(record));
         shared_ptr<RecordsNode<Set<Herd>>> node =
              make_shared<RecordsNode<Set<Herd>>>(obj);
         node->m_record = record;
-        node->next = arr[i];  
+        node->next = arr[i];
+        if (arr[i] != nullptr )
+        {
+            arr[i]->previous = node;
+        }
         arr[i] = node;
         amount++;
         if(amount >= size){
@@ -113,10 +117,18 @@ public:
         }
         delete[] temp_arr;
     }
+    shared_ptr<RecordsNode<Set<Herd>>> increaseRecord(int num,
+         shared_ptr<RecordsNode<Set<Herd>>>  m_record){
+            return this->insert(num + m_record->getRecord(), m_record->data);
+    }
 
     // for deleting herds from records in O(1)
     void deleteNode(shared_ptr<RecordsNode<Set<Herd>>> node){
-        // int i = hash(node->m_record);
+        int i = hash(abs(node->m_record));
+        if (arr[i] == node)
+        {
+            arr[i] = node->next;
+        }
         if (node->previous != nullptr)
         {
             node->previous->next = node->next;
