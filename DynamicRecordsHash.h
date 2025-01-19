@@ -1,13 +1,13 @@
 
+#pragma once
 #include <memory>
 #include <stdexcept>
-#include <stdlib.h>
+// #include <stdlib.h>
 #include "Herd.h"
 #include "UnionFind.h"
 
 #define DEFAULT_CAPACITY 16
 using namespace std;
-
 template <class T>
 struct RecordsNode{
     shared_ptr<T> data;
@@ -21,7 +21,8 @@ struct RecordsNode{
 
     int getRecord(){return m_record;}
 };
-
+template <class T>
+struct Set;
 struct Pairs //for returning to values in amount function
 {
     shared_ptr<Set<Herd>> first;
@@ -32,12 +33,12 @@ struct Pairs //for returning to values in amount function
 
 class DynamicRecordsHash{
 private:
-    unique_ptr<shared_ptr<RecordsNode<Set<Herd>>>[]> arr;
+    shared_ptr<RecordsNode<Set<Herd>>>* arr;
     int size;
     int amount;
 public:
     DynamicRecordsHash(){
-        arr = make_unique<shared_ptr<RecordsNode<Set<Herd>>>[]>(DEFAULT_CAPACITY);       
+        arr = new shared_ptr<RecordsNode<Set<Herd>>>[DEFAULT_CAPACITY];
         size = DEFAULT_CAPACITY;
         amount = 0;
     }
@@ -94,9 +95,10 @@ public:
     }
 
     void multiplyHash(){
-        unique_ptr<shared_ptr<RecordsNode<Set<Herd>>>[]> temp_arr = move(this->arr);
+        auto temp_arr = this->arr;
         this->size = this->size*2;
-        arr = make_unique<shared_ptr<RecordsNode<Set<Herd>>>[]>(this->size);
+
+        arr = new shared_ptr<RecordsNode<Set<Herd>>>[this->size];
         for (int i = 0; i < size/2; i++){
             shared_ptr<RecordsNode<Set<Herd>>> current = temp_arr[i];
             while (current != nullptr && current->data != nullptr)
@@ -109,11 +111,12 @@ public:
             }
             temp_arr[i].reset();
         }
+        delete[] temp_arr;
     }
 
     // for deleting herds from records in O(1)
     void deleteNode(shared_ptr<RecordsNode<Set<Herd>>> node){
-        int i = hash(node->m_record);
+        // int i = hash(node->m_record);
         if (node->previous != nullptr)
         {
             node->previous->next = node->next;

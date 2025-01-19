@@ -75,8 +75,7 @@ StatusType Plains::update_match(int victoriousJockeyId, int losingJockeyId)
   loseTeam->setRecord(record);
   records.deleteNode(loseRecord);
   shared_ptr<RecordsNode<Set<Herd>>> winRecord = winningTeam->getNodeRecord();
-  shared_ptr<RecordsNode<Set<Herd>>> record = 
-    records.insert(loseRecord->m_record + 1, winningTeam);
+  record = records.insert(loseRecord->m_record + 1, winningTeam);
   winningTeam->setRecord(record);
   records.deleteNode(winRecord);
 
