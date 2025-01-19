@@ -4,7 +4,7 @@
 
 #ifndef UNIONFIND_H
 #define UNIONFIND_H
-#include "DynamicArray.h"
+// #include "DynamicArray.h"
 #include "DynamicHash.h"
 #include "DynamicRecordsHash.h"
 #include <memory>

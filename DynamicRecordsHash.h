@@ -107,8 +107,8 @@ public:
                 arr[i] = current;
                 current = next;
             }
+            temp_arr[i].reset();
         }
-        return;
     }
 
     // for deleting herds from records in O(1)

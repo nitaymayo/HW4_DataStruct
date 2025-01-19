@@ -19,6 +19,9 @@ StatusType Plains::add_team(int teamId)
   if(teamId <= 0) return StatusType::INVALID_INPUT;
   if(herds.search(teamId)) return StatusType::FAILURE;
   try {
+      auto team = teams.makeSet(Herd(teamId));
+      herds.insert(team->getHead());
+      records.insert(0, team->getHead());
       shared_ptr<Set<Herd>> temp = teams.makeSet(Herd(teamId));
       shared_ptr<RecordsNode<Set<Herd>>> record = records.insert(0, temp);
       temp->setRecord(record);
@@ -34,7 +37,7 @@ StatusType Plains::add_jockey(int jockeyId, int teamId)
 
   auto team = herds.search(teamId);
 
-  if(team->getData()->Deleted() || riders.search(jockeyId)) return StatusType::FAILURE;
+  if(!team || team->getData()->Deleted() || riders.search(jockeyId)) return StatusType::FAILURE;
   shared_ptr<Rider> rider;
   try{
     rider = make_shared<Rider>(jockeyId, team);
@@ -134,6 +137,8 @@ output_t<int> Plains::get_team_record(int teamId)
     if (teamId <= 0) return StatusType::INVALID_INPUT;
     auto team = herds.search(teamId);
     if (!team) return StatusType::FAILURE;
-    if (!team->getSet()) throw logic_error("team->getSet() is null");
+    if (!team->getSet()){
+      throw logic_error("team->getSet() is null");
+      }
     return team->getSet()->getRecord();
 }

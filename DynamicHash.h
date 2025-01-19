@@ -22,19 +22,29 @@ struct Node{
 template<class T>
 class DynamicHash {
 private:
-    unique_ptr<shared_ptr<Node<T>>[]> arr;
+    shared_ptr<Node<T>>* arr;
     int size;
     int amount;
 public:
     DynamicHash(){
-        arr = make_unique<shared_ptr<Node<T>>[]>(DEFAULT_CAPACITY);
+        arr = new shared_ptr<Node<T>>[DEFAULT_CAPACITY];
+        for (int i = 0; i < DEFAULT_CAPACITY; ++i){
+            arr[i] = make_shared<Node<T>>();
+        }
         size = DEFAULT_CAPACITY;
         amount = 0;
     }
+
+    ~DynamicHash(){
+        delete[] arr;
+    }
+
+
     shared_ptr<T> search(int key){
         int i = hash(key);
         shared_ptr<Node<T>> current = arr[i];
-        while (current != nullptr){
+
+        while (current && current->data){
             if (current->data->key() == key){
                 return current->data;
             }
@@ -60,9 +70,10 @@ public:
     }
 
     void multiplyHash(){
-        unique_ptr<shared_ptr<Node<T>>[]> temp_arr = move(this->arr);
+        auto temp_arr = this->arr;
         this->size = this->size*2;
-        arr = make_unique<shared_ptr<Node<T>>[]>(this->size);
+        arr = new shared_ptr<Node<T>>[size];
+
         for (int i = 0; i < size/2; i++){
             shared_ptr<Node<T>> current = temp_arr[i];
             while (current != nullptr && current->data != nullptr)
@@ -73,8 +84,9 @@ public:
                 arr[i] = current;
                 current = next;
             }
+            temp_arr[i].reset();
         }
-        return;
+        delete[] temp_arr;
     }
 
     int hash(int key) const{
