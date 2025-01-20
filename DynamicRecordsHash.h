@@ -22,13 +22,17 @@ public:
     explicit RecordsNode(shared_ptr<T> data):
          previous(), data(data), next(nullptr){}
     ~RecordsNode(){
-        RecordsNode<T>* current = this;
-        while (current != nullptr){
-            shared_ptr<RecordsNode<T>> next = current->getNext();
-            current->data.reset();
-            current->next.reset();
-            current = next.get();
-        }
+        // RecordsNode<T>* current = this;
+        // while (current != nullptr){
+        //     shared_ptr<RecordsNode<T>> next = current->getNext();
+        //     current->data.reset();
+        //     current->next.reset();
+        //     current = next.get();
+        // }
+    }
+    void clear(){
+        data.reset();
+        next.reset();
     }
 
     shared_ptr<T> getData() {
@@ -78,6 +82,16 @@ public:
         amount = 0;
     }
     ~DynamicRecordsHash(){
+        for (int i = 0; i < size; i++){
+            shared_ptr<RecordsNode<Set<Herd>>> current = arr[i];
+            while (current != nullptr){
+                shared_ptr<RecordsNode<Set<Herd>>> next = current->getNext();
+                current->clear();
+                current.reset();
+                current = next;
+            }
+            arr[i].reset();
+        }
         delete[] arr;
     }
     shared_ptr<Set<Herd>> search(int record){
