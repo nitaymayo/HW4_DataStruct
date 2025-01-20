@@ -86,7 +86,8 @@ StatusType Plains::merge_teams(int teamId1, int teamId2)
 
   if (teamId1 <= 0 || teamId2 <= 0 ||
         teamId1 == teamId2) return StatusType::INVALID_INPUT;
-  auto team1 = herds.search(teamId1), team2 = herds.search(teamId2);
+  auto team1 = herds.search(teamId1),
+        team2 = herds.search(teamId2);
   // check if teams still alive
   if (!team1 || !team2 ||
       team1->getData()->Deleted() ||
@@ -146,7 +147,7 @@ output_t<int> Plains::get_team_record(int teamId)
 {
     if (teamId <= 0) return StatusType::INVALID_INPUT;
     auto team = herds.search(teamId);
-    if (!team) return StatusType::FAILURE;
+    if (!team || team->getData()->Deleted()) return StatusType::FAILURE;
     if (!team->getSet()){
       throw logic_error("team->getSet() is null");
       }
