@@ -25,14 +25,10 @@ struct RevTreeNode{
       RevTreeNode(shared_ptr<T> data, shared_ptr<RevTreeNode<T>> parent, shared_ptr<Set<T>> set):
         m_data(data), m_parent(parent), m_set(set){};
 
-      ~RevTreeNode() = default;
+      ~RevTreeNode() {
+        m_data.reset();
+      };
 
-//      int getID(){
-//        return m_ID;
-//      }
-//      void setID(int ID){
-//        this->m_ID = ID;
-//      }
       shared_ptr<T> getData(){
         return m_data;
       }
@@ -72,7 +68,10 @@ struct Set{
       head = std::move(root);
     };
 
-    ~Set() = default;
+    ~Set() {
+      m_record.reset();
+      head.reset();
+    };
 
     int getSize() const {
       return m_size;
