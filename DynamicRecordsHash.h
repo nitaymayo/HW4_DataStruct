@@ -55,7 +55,7 @@ public:
     // returns the herd with the positive record, if the amount of groups
     //  is not precisly one negative and one positive returns nullptr
     Pairs Amount(int record){
-        if (record > size) {
+        if (record >= size) {
             Pairs temp;
             temp.first = temp.second = nullptr;
             return temp;
@@ -84,12 +84,13 @@ public:
         return temp;
     }
 
-    shared_ptr<RecordsNode<Set<Herd>>> insert(int record, shared_ptr<Set<Herd>> obj){            
+    shared_ptr<RecordsNode<Set<Herd>>> insert(const int record, shared_ptr<Set<Herd>> obj){
         int i = hash(abs(record));
         shared_ptr<RecordsNode<Set<Herd>>> node =
              make_shared<RecordsNode<Set<Herd>>>(obj);
         node->m_record = record;
         node->next = arr[i];
+        node->previous = nullptr;
         if (arr[i] != nullptr )
         {
             arr[i]->previous = node;
@@ -114,7 +115,11 @@ public:
                 shared_ptr<RecordsNode<Set<Herd>>> next = current->next;
                 int i = hash(current->m_record);
                 current->next = arr[i];
+                if (arr[i]) {
+                    arr[i]->previous = current;
+                }
                 arr[i] = current;
+                current->previous = nullptr;
                 current = next;
             }
             temp_arr[i].reset();
@@ -142,6 +147,8 @@ public:
             node->next->previous = node->previous;
         }
         this->amount--;
+        node->next.reset();
+        node->previous.reset();
         node.reset();
     }
 
