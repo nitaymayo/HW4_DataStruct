@@ -21,6 +21,15 @@ public:
     RecordsNode(): data(nullptr), next(nullptr){}
     explicit RecordsNode(shared_ptr<T> data):
          previous(), data(data), next(nullptr){}
+    ~RecordsNode(){
+        RecordsNode<T>* current = this;
+        while (current != nullptr){
+            shared_ptr<RecordsNode<T>> next = current->getNext();
+            current->data.reset();
+            current->next.reset();
+            current = next.get();
+        }
+    }
 
     shared_ptr<T> getData() {
         return data;
@@ -67,6 +76,9 @@ public:
         arr = new shared_ptr<RecordsNode<Set<Herd>>>[DEFAULT_CAPACITY];
         size = DEFAULT_CAPACITY;
         amount = 0;
+    }
+    ~DynamicRecordsHash(){
+        delete[] arr;
     }
     shared_ptr<Set<Herd>> search(int record){
         int i = hash(abs(record));
