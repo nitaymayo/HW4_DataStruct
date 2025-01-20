@@ -27,7 +27,6 @@ struct Pairs //for returning to values in amount function
 {
     shared_ptr<Set<Herd>> first;
     shared_ptr<Set<Herd>> second;
-
 };
 
 
@@ -56,6 +55,11 @@ public:
     // returns the herd with the positive record, if the amount of groups
     //  is not precisly one negative and one positive returns nullptr
     Pairs Amount(int record){
+        if (record > size) {
+            Pairs temp;
+            temp.first = temp.second = nullptr;
+            return temp;
+        }
         int i = hash(record);
         Pairs temp;
         shared_ptr<RecordsNode<Set<Herd>>> current = arr[i];
