@@ -27,7 +27,7 @@ private:
     //
     UnionFind teams;
     DynamicHash<Rider> riders;
-    DynamicHash<RevTreeNode<Herd>> herds;
+    DynamicHash<Set<Herd>> herds;
     DynamicRecordsHash records;
     
 public:

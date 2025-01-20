@@ -142,7 +142,7 @@ public:
     }
 
     int hash(int record) const{
-        return record % this->size;
+        return abs(record % this->size);
     }
 };
 

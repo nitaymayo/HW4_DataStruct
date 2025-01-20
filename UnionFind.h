@@ -118,6 +118,9 @@ struct Set{
       m_record.reset();
       m_size = -1;
     }
+  bool Deleted() const {
+      return deleted;
+    }
 
 };
 

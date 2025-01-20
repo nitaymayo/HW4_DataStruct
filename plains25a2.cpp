@@ -20,7 +20,7 @@ StatusType Plains::add_team(int teamId)
   if(herds.search(teamId)) return StatusType::FAILURE;
   try {
       auto team = teams.makeSet(Herd(teamId));
-      herds.insert(team->getHead());
+      herds.insert(team);
       shared_ptr<RecordsNode<Set<Herd>>> record = records.insert(0, team);
       team->setRecord(record);
   } catch(bad_alloc &e) {
@@ -35,10 +35,10 @@ StatusType Plains::add_jockey(int jockeyId, int teamId)
 
   auto team = herds.search(teamId);
 
-  if(!team || team->getData()->Deleted() || riders.search(jockeyId)) return StatusType::FAILURE;
+  if(!team || team->Deleted() || riders.search(jockeyId)) return StatusType::FAILURE;
   shared_ptr<Rider> rider;
   try{
-    rider = make_shared<Rider>(jockeyId, team);
+    rider = make_shared<Rider>(jockeyId, team->getHead());
   } catch (bad_alloc &e) {
     return StatusType::ALLOCATION_ERROR;
   }
@@ -90,8 +90,8 @@ StatusType Plains::merge_teams(int teamId1, int teamId2)
         team2 = herds.search(teamId2);
   // check if teams still alive
   if (!team1 || !team2 ||
-      team1->getData()->Deleted() ||
-      team2->getData()->Deleted())
+      team1->Deleted() ||
+      team2->Deleted())
     return StatusType::FAILURE;
 
   // make union
@@ -147,9 +147,6 @@ output_t<int> Plains::get_team_record(int teamId)
 {
     if (teamId <= 0) return StatusType::INVALID_INPUT;
     auto team = herds.search(teamId);
-    if (!team || team->getData()->Deleted()) return StatusType::FAILURE;
-    if (!team->getSet()){
-      throw logic_error("team->getSet() is null");
-      }
-    return team->getSet()->getRecord();
+    if (!team || team->Deleted()) return StatusType::FAILURE;
+    return team->getRecord();
 }
