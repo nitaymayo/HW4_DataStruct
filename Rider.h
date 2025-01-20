@@ -14,7 +14,7 @@ class Rider {
 private:
     int m_id;
     int record;
-    std::shared_ptr<RevTreeNode<Herd>> m_herd;
+    std::weak_ptr<RevTreeNode<Herd>> m_herd;
 
 public:
     Rider(int id, std::shared_ptr<RevTreeNode<Herd>> herd): m_id(id), record(0), m_herd(herd) {};
@@ -23,10 +23,10 @@ public:
         return m_id;
     }
     int HerdID() const {
-        return m_herd->key();
+        return m_herd.lock()->key();
     }
     std::shared_ptr<RevTreeNode<Herd>> getHerd() const {
-        return m_herd;
+        return m_herd.lock();
     }
     int key() const {
         return m_id;

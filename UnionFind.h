@@ -19,8 +19,8 @@ template<class T>
 struct RevTreeNode{
   private:
     shared_ptr<T> m_data;
-    shared_ptr<RevTreeNode<T>> m_parent;
-    shared_ptr<Set<T>> m_set;
+    weak_ptr<RevTreeNode<T>> m_parent;
+    weak_ptr<Set<T>> m_set;
     public:
       RevTreeNode(shared_ptr<T> data, shared_ptr<RevTreeNode<T>> parent, shared_ptr<Set<T>> set):
         m_data(data), m_parent(parent), m_set(set){};
@@ -41,7 +41,7 @@ struct RevTreeNode{
         this->m_parent = parent;
       }
       shared_ptr<RevTreeNode<T>> getParent(){
-      return m_parent;
+      return m_parent.lock();
       }
       bool isRoot() const{
        	return (m_set != nullptr);
@@ -50,7 +50,7 @@ struct RevTreeNode{
         m_set.reset();
       }
       shared_ptr<Set<T>> getSet(){
-        return m_set;
+        return m_set.lock();
       }
       void setSet(shared_ptr<Set<T>> set){
       this->m_set = set;

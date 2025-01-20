@@ -10,16 +10,43 @@
 using namespace std;
 template <class T>
 struct RecordsNode{
+    private:
+    weak_ptr<RecordsNode<T>> previous;
     shared_ptr<T> data;
     shared_ptr<RecordsNode<T>> next;
-    shared_ptr<RecordsNode<T>> previous;
     int m_record = 0;
 
-    RecordsNode(): data(nullptr), next(nullptr){}
-    RecordsNode(shared_ptr<T> data):
-         data(data), next(nullptr), previous(nullptr){}
 
-    int getRecord(){return m_record;}
+public:
+    RecordsNode(): data(nullptr), next(nullptr){}
+    explicit RecordsNode(shared_ptr<T> data):
+         previous(), data(data), next(nullptr){}
+
+    shared_ptr<T> getData() {
+        return data;
+    }
+    void setData(shared_ptr<T> data) {
+        this->data = data;
+    }
+
+    shared_ptr<RecordsNode<T>> getNext() {
+        return next;
+    }
+    void setNext(shared_ptr<RecordsNode<T>> next) {
+        this->next = next;
+    }
+
+    int getRecord() const {return m_record;}
+    void setRecord(int record) {
+        m_record = record;
+    }
+    shared_ptr<RecordsNode<T>> getPrevious(){return previous.lock();}
+    void resetPrevious() {
+        previous.reset();
+    }
+    void setPrevious(weak_ptr<RecordsNode<T>> previous) {
+        this->previous = previous;
+    }
 };
 template <class T>
 struct Set;
@@ -45,10 +72,10 @@ public:
         int i = hash(abs(record));
         shared_ptr<RecordsNode<Set<Herd>>> current = arr[i];
         while (current != nullptr){
-            if (current->m_record == record){
-                return current->data;
+            if (current->getRecord() == record){
+                return current->getData();
             }
-            current = current->next;
+            current = current->getNext();
         }
         return nullptr;
     }
@@ -57,7 +84,6 @@ public:
     Pairs Amount(int record){
         if (record >= size) {
             Pairs temp;
-            temp.first = temp.second = nullptr;
             return temp;
         }
         int i = hash(record);
@@ -66,19 +92,19 @@ public:
         int positive_counter = 0;
         int negative_counter = 0;
         while (current != nullptr && positive_counter < 2 && negative_counter < 2 ){
-            if (current->m_record == record){
-                temp.first = current->data;
+            if (current->getRecord() == record){
+                temp.first = current->getData();
                 positive_counter++;
-            }else if(current->m_record == -record){
-                temp.second = current->data;
+            }else if(current->getRecord() == -record){
+                temp.second = current->getData();
                 negative_counter++;
             }   
-            current = current->next;
+            current = current->getNext();
         }
         if (positive_counter != 1 || negative_counter != 1)
         {
-            temp.first = nullptr;
-            temp.second = nullptr;
+            temp.first.reset();
+            temp.second.reset();
         }
 
         return temp;
@@ -88,12 +114,12 @@ public:
         int i = hash(abs(record));
         shared_ptr<RecordsNode<Set<Herd>>> node =
              make_shared<RecordsNode<Set<Herd>>>(obj);
-        node->m_record = record;
-        node->next = arr[i];
-        node->previous = nullptr;
+        node->setRecord(record);
+        node->setNext(arr[i]);
+        node->resetPrevious();
         if (arr[i] != nullptr )
         {
-            arr[i]->previous = node;
+            arr[i]->setPrevious(node);
         }
         arr[i] = node;
         amount++;
@@ -110,16 +136,15 @@ public:
         arr = new shared_ptr<RecordsNode<Set<Herd>>>[this->size];
         for (int i = 0; i < size/2; i++){
             shared_ptr<RecordsNode<Set<Herd>>> current = temp_arr[i];
-            while (current != nullptr && current->data != nullptr)
-            {
-                shared_ptr<RecordsNode<Set<Herd>>> next = current->next;
-                int i = hash(current->m_record);
-                current->next = arr[i];
+            while (current != nullptr && current->getData()){
+                shared_ptr<RecordsNode<Set<Herd>>> next = current->getNext();
+                int i = hash(current->getRecord());
+                current->setNext(arr[i]);
                 if (arr[i]) {
-                    arr[i]->previous = current;
+                    arr[i]->setPrevious(current);
                 }
                 arr[i] = current;
-                current->previous = nullptr;
+                current->resetPrevious();
                 current = next;
             }
             temp_arr[i].reset();
@@ -128,27 +153,27 @@ public:
     }
     shared_ptr<RecordsNode<Set<Herd>>> increaseRecord(int num,
          shared_ptr<RecordsNode<Set<Herd>>>  m_record){
-            return this->insert(num + m_record->getRecord(), m_record->data);
+            return this->insert(num + m_record->getRecord(), m_record->getData());
     }
 
     // for deleting herds from records in O(1)
     void deleteNode(shared_ptr<RecordsNode<Set<Herd>>> node){
-        int i = hash(abs(node->m_record));
+        int i = hash(abs(node->getRecord()));
         if (arr[i] == node)
         {
-            arr[i] = node->next;
+            arr[i] = node->getNext();
         }
-        if (node->previous != nullptr)
+        if (node->getPrevious())
         {
-            node->previous->next = node->next;
+            node->getPrevious()->setNext(node->getNext());
         }
-        if (node->next != nullptr)
+        if (node->getNext())
         {
-            node->next->previous = node->previous;
+            node->getNext()->setPrevious(node->getPrevious());
         }
         this->amount--;
-        node->next.reset();
-        node->previous.reset();
+        node->getNext().reset();
+        node->resetPrevious();
         node.reset();
     }
 

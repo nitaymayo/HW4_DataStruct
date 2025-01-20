@@ -5,13 +5,12 @@
 
 
 Plains::Plains()
-{
-
-}
+= default;
 
 Plains::~Plains()
 {
-    
+    // records.clearData();
+
 }
 
 StatusType Plains::add_team(int teamId)
